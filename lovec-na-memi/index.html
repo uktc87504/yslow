@@ -1,0 +1,416 @@
+<title>Ловец на меми</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a grammar workbench — text in, annotated reading out, then the tally and the hunter's dictionary. */
+:root {
+  --bg: #eef1f5;
+  --surface: #ffffff;
+  --ink: #18202e;
+  --muted: #5b6577;
+  --line: #d5dbe5;
+  --accent: #2b45c4;
+  --neg: #b8362a;
+  --neg-soft: #f6dcd8;
+  --pos: #23794a;
+  --pos-soft: #d5ecdf;
+  --neu: #6d7586;
+  --neu-soft: #e3e7ee;
+  --f-display: "Unbounded", "Arial Black", system-ui, sans-serif;
+  --f-text: "PT Serif", Georgia, "Times New Roman", serif;
+  --f-ui: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11151d; --surface: #191f2a; --ink: #e6e9ef; --muted: #98a1b3; --line: #2c3442;
+    --accent: #8ea0ff; --neg: #f08374; --neg-soft: #4a2420; --pos: #6fcf98; --pos-soft: #1d3a2a;
+    --neu: #a3abba; --neu-soft: #2a313d; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11151d; --surface: #191f2a; --ink: #e6e9ef; --muted: #98a1b3; --line: #2c3442;
+  --accent: #8ea0ff; --neg: #f08374; --neg-soft: #4a2420; --pos: #6fcf98; --pos-soft: #1d3a2a;
+  --neu: #a3abba; --neu-soft: #2a313d; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--f-ui); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 56px;
+}
+.wrap { max-width: 1120px; margin: 0 auto; display: grid; gap: 28px; }
+header { display: grid; gap: 10px; }
+h1 {
+  font-family: var(--f-display); font-weight: 700; font-size: clamp(30px, 6vw, 52px);
+  line-height: 1.05; margin: 0; letter-spacing: -0.01em; text-wrap: balance;
+}
+h1 .me { color: var(--neg); }
+h1 .mi { color: var(--accent); }
+.lede { font-family: var(--f-text); font-size: 18px; max-width: 62ch; margin: 0; color: var(--muted); }
+.lede b { color: var(--ink); }
+h2 {
+  font-family: var(--f-ui); font-weight: 600; font-size: 12px; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--muted); margin: 0;
+}
+.bench { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 820px) { .bench { grid-template-columns: 1fr; } }
+.pane { display: grid; gap: 10px; align-content: start; min-width: 0; }
+.pane-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; min-height: 32px; }
+.btns { display: flex; gap: 8px; flex-wrap: wrap; }
+button {
+  font: 500 13px var(--f-ui); color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 6px; padding: 6px 12px; cursor: pointer;
+}
+button:hover { border-color: var(--accent); color: var(--accent); }
+button:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+textarea {
+  width: 100%; min-height: 340px; resize: vertical; font: 17px/1.65 var(--f-text); color: var(--ink);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px;
+}
+.reading {
+  min-height: 340px; font: 17px/1.9 var(--f-text); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px; white-space: pre-wrap; overflow-wrap: anywhere;
+}
+.reading .empty { color: var(--muted); font-style: italic; }
+mark { border-radius: 4px; padding: 1px 4px; font-weight: 700; color: inherit; }
+mark.neg { background: var(--neg-soft); color: var(--neg); }
+mark.pos { background: var(--pos-soft); color: var(--pos); }
+mark.neu { background: var(--neu-soft); color: var(--neu); }
+.pred { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.pred.neg { text-decoration-color: var(--neg); }
+.pred.pos { text-decoration-color: var(--pos); }
+.neg-word { font-style: italic; color: var(--muted); }
+
+.tally { display: grid; gap: 14px; padding-block: 20px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.verdict { font-family: var(--f-text); font-size: 22px; margin: 0; text-wrap: balance; max-width: 50ch; }
+.verdict strong { color: var(--neg); }
+.bar { display: flex; height: 14px; border-radius: 7px; overflow: hidden; background: var(--neu-soft); }
+.bar span { display: block; height: 100%; transition: width .4s ease; }
+.bar .b-neg { background: var(--neg); }
+.bar .b-pos { background: var(--pos); }
+.bar .b-neu { background: var(--neu); opacity: .55; }
+.legend { display: flex; gap: 22px; flex-wrap: wrap; font-size: 14px; }
+.legend div { display: flex; align-items: baseline; gap: 8px; }
+.legend .n { font: 500 22px var(--f-mono); font-variant-numeric: tabular-nums; }
+.legend .neg .n { color: var(--neg); }
+.legend .pos .n { color: var(--pos); }
+.legend .neu .n { color: var(--neu); }
+.legend .tot .n { color: var(--ink); }
+
+.lower { display: grid; grid-template-columns: 3fr 2fr; gap: 28px; }
+@media (max-width: 820px) { .lower { grid-template-columns: 1fr; } }
+.lower > section { display: grid; gap: 12px; align-content: start; min-width: 0; }
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; font-weight: 500; color: var(--muted); font-size: 12px; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+td { padding: 9px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+td.c { font-family: var(--f-text); font-size: 16px; font-weight: 700; white-space: nowrap; }
+td.k { font: 500 15px var(--f-mono); font-variant-numeric: tabular-nums; text-align: right; }
+td.ex { font-family: var(--f-text); color: var(--muted); font-style: italic; }
+.chip { display: inline-block; font: 600 11px var(--f-ui); letter-spacing: .04em; text-transform: uppercase; padding: 2px 7px; border-radius: 999px; }
+.chip.neg { background: var(--neg-soft); color: var(--neg); }
+.chip.pos { background: var(--pos-soft); color: var(--pos); }
+.chip.neu { background: var(--neu-soft); color: var(--neu); }
+.none { color: var(--muted); font-style: italic; font-family: var(--f-text); }
+
+.dict-sum { font-family: var(--f-text); font-size: 16px; margin: 0; }
+.dict-sum .n { font-family: var(--f-mono); font-weight: 500; }
+.dict-sum .neg { color: var(--neg); }
+.dict-sum .pos { color: var(--pos); }
+.dict-group { display: grid; gap: 6px; }
+.dict-group h3 { margin: 0; font: 600 13px var(--f-ui); }
+.dict-group.neg h3 { color: var(--neg); }
+.dict-group.pos h3 { color: var(--pos); }
+.words { display: flex; flex-wrap: wrap; gap: 6px; }
+.words span { font: 14px var(--f-text); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--line); background: var(--surface); }
+.words span.hit { border-color: currentColor; font-weight: 700; }
+.dict-group.neg .words span.hit { color: var(--neg); }
+.dict-group.pos .words span.hit { color: var(--pos); }
+.note { font-size: 13px; color: var(--muted); margin: 0; max-width: 65ch; }
+@media (prefers-reduced-motion: reduce) { .bar span { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Ловец на <span class="me">ме</span>‑<span class="mi">ми</span></h1>
+    <p class="lede">Безличните конструкции с <b>ме</b> и <b>ми</b> казват как се чувстваме: <i>мързи ме, писна ми, харесва ми</i>. Поставете текст и ловецът ще ги намери, ще ги оцвети и ще преброи колко от тях са негативни.</p>
+  </header>
+
+  <div class="bench">
+    <div class="pane">
+      <div class="pane-head">
+        <h2><label for="src">Текст</label></h2>
+        <div class="btns">
+          <button type="button" id="btn-sample">Зареди пример</button>
+          <button type="button" id="btn-clear">Изчисти</button>
+        </div>
+      </div>
+      <textarea id="src" spellcheck="false"></textarea>
+    </div>
+    <div class="pane">
+      <div class="pane-head"><h2>Улов</h2></div>
+      <div class="reading" id="reading" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <section class="tally" aria-label="Обобщение">
+    <p class="verdict" id="verdict"></p>
+    <div class="bar" id="bar" role="img" aria-label="Съотношение"><span class="b-neg"></span><span class="b-pos"></span><span class="b-neu"></span></div>
+    <div class="legend">
+      <div class="neg"><span class="n" id="n-neg">0</span> негативни</div>
+      <div class="pos"><span class="n" id="n-pos">0</span> позитивни</div>
+      <div class="neu"><span class="n" id="n-neu">0</span> неутрални</div>
+      <div class="tot"><span class="n" id="n-tot">0</span> ме/ми общо</div>
+    </div>
+  </section>
+
+  <div class="lower">
+    <section>
+      <h2>Конструкции в текста</h2>
+      <div class="tbl-wrap" id="found"></div>
+    </section>
+    <section>
+      <h2>Речникът на ловеца</h2>
+      <p class="dict-sum" id="dict-sum"></p>
+      <div class="dict-group neg"><h3>Негативни</h3><div class="words" id="dict-neg"></div></div>
+      <div class="dict-group pos"><h3>Позитивни</h3><div class="words" id="dict-pos"></div></div>
+      <p class="note">Ловецът гледа до три думи около всяко ме/ми в рамките на една клауза. „Не“ обръща позитивното в негативно (<i>не ми харесва</i>), а отрицанието на негативното става неутрално (<i>не ме боли</i>). Изключение е <i>не ми пука</i>. Използва речник, а не пълен граматичен анализ, така че пропуски и грешки са възможни.</p>
+    </section>
+  </div>
+</div>
+
+<script>
+// [етикет, полярност, регулярен израз за словоформата на предиката]
+const LEXICON = [
+  ['боли ме', 'neg', /^(за)?бол(и|еше|я|ял|яло|ява|ят|но)$/],
+  ['мързи ме', 'neg', /^мърз/],
+  ['писна ми', 'neg', /^писн/],
+  ['омръзна ми', 'neg', /^омръз/],
+  ['втръсна ми', 'neg', /^втръс/],
+  ['дотегна ми', 'neg', /^дот[ея]г/],
+  ['тегне ми', 'neg', /^тегн/],
+  ['доскуча ми', 'neg', /^доскуч/],
+  ['скучно ми е', 'neg', /^скучн/],
+  ['дразни ме', 'neg', /^(раз)?дразн/],
+  ['ядосва ме', 'neg', /^(яд|ядос.*)$/],
+  ['изнервя ме', 'neg', /^(из)?нерв/],
+  ['тревожи ме', 'neg', /^(раз)?трево/],
+  ['притеснява ме', 'neg', /^притесн/],
+  ['стресира ме', 'neg', /^стрес/],
+  ['депресира ме', 'neg', /^депрес/],
+  ['плаши ме', 'neg', /^(у|из)?плаш/],
+  ['страх ме е', 'neg', /^страх/],
+  ['срам ме е', 'neg', /^срам/],
+  ['гнус ме е', 'neg', /^гнус/],
+  ['жал ми е', 'neg', /^жал/],
+  ['мъчно ми е', 'neg', /^мъч/],
+  ['тъжно ми е', 'neg', /^тъж/],
+  ['самотно ми е', 'neg', /^самот/],
+  ['студено ми е', 'neg', /^студ(ено)?$/],
+  ['лошо ми е', 'neg', /^лош/],
+  ['зле ми е', 'neg', /^зле$/],
+  ['кофти ми е', 'neg', /^кофти$/],
+  ['тъпо ми е', 'neg', /^тъп/],
+  ['гади ми се', 'neg', /^гад/],
+  ['призля ми', 'neg', /^призл/],
+  ['тежко ми е', 'neg', /^теж(ко|и|еше|ат)$/],
+  ['трудно ми е', 'neg', /^трудн/],
+  ['неприятно ми е', 'neg', /^неприят/],
+  ['неудобно ми е', 'neg', /^неудобн/],
+  ['досадно ми е', 'neg', /^досад|^досажд/],
+  ['омразно ми е', 'neg', /^омраз/],
+  ['ужасно ми е', 'neg', /^ужас/],
+  ['горко ми', 'neg', /^горко$/],
+  ['сърби ме', 'neg', /^сърб(и|еше|ят|ял|яло)$/],
+  ['тресе ме', 'neg', /^в?трес(е|еше|ло|ла)$/],
+  ['боде ме', 'neg', /^бод(е|еше)$/],
+  ['гризе ме', 'neg', /^гриз/],
+  ['свива ми се', 'neg', /^свив/],
+  ['кипна ми', 'neg', /^кипн/],
+  ['не ми пука', 'neg', /^пук(а|аше|ало)?$/],
+
+  ['харесва ми', 'pos', /^(по)?харес/],
+  ['допада ми', 'pos', /^допад/],
+  ['уйдисва ми', 'pos', /^уйдис/],
+  ['кефи ме', 'pos', /^кеф/],
+  ['радва ме', 'pos', /^(з)?радв/],
+  ['обича ме', 'pos', /^обич/],
+  ['блазни ме', 'pos', /^блазн/],
+  ['ласкае ме', 'pos', /^ласка/],
+  ['вдъхновява ме', 'pos', /^вдъхнов/],
+  ['интересно ми е', 'pos', /^интерес/],
+  ['драго ми е', 'pos', /^драго$/],
+  ['мило ми е', 'pos', /^мило$/],
+  ['хубаво ми е', 'pos', /^хубав/],
+  ['добре ми е', 'pos', /^добре$/],
+  ['приятно ми е', 'pos', /^приятн/],
+  ['весело ми е', 'pos', /^весел/],
+  ['забавно ми е', 'pos', /^забав(но|ля)/],
+  ['леко ми е', 'pos', /^(леко|олекн.*)$/],
+  ['топло ми е', 'pos', /^топло$/],
+  ['уютно ми е', 'pos', /^уютн/],
+  ['спокойно ми е', 'pos', /^спокойн/],
+  ['лесно ми е', 'pos', /^лесн/],
+  ['вкусно ми е', 'pos', /^вкусн/],
+  ['сладко ми е', 'pos', /^сладк/],
+  ['щастлив ме прави', 'pos', /^щаст/],
+  ['чудесно ми е', 'pos', /^чудесн/],
+  ['прекрасно ми е', 'pos', /^прекрасн/],
+  ['готино ми е', 'pos', /^готин/],
+  ['супер ми е', 'pos', /^супер$/],
+  ['провървя ми', 'pos', /^провърв/],
+  ['върви ми', 'pos', /^върв(и|еше|ят)$/],
+  ['спори ми се', 'pos', /^спор(и|еше)$/],
+  ['отива ми', 'pos', /^отив(а|аше|ат)$/],
+];
+
+const CLITICS = new Set(['ме', 'ми']);
+const CONJ = new Set(['и', 'а', 'но', 'че', 'когато', 'защото', 'ако', 'или', 'ала', 'обаче', 'докато', 'щом']);
+const BREAK_RE = /[.,!?;:…—–\-()\[\]"„“”«»\n]/;
+
+const SAMPLE = `Днес нещо не ми върви. Сутринта ме мързеше да стана, после ме заболя главата. На работа шефът пак ме ядоса и честно казано вече ми писна. Колегата ми каза, че му е мъчно за лятото, а на мен ми е студено и ми се спи.
+
+Обядът поне ми хареса, беше ми вкусно. Вечерта приятелка ми звънна и ми стана драго. Не ме интересува какво мисли той. Страх ме е от понеделника, но ми олекна, когато излязох на разходка. Срам ме е да призная, но ме дразни, че не ми пука.`;
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const lower = (s) => s.toLocaleLowerCase('bg');
+
+function lookup(w) {
+  for (let k = 0; k < LEXICON.length; k++) if (LEXICON[k][2].test(w)) return k;
+  return -1;
+}
+
+function analyze(text) {
+  const words = [];
+  const re = /[\p{L}\p{M}]+/gu;
+  let m, clause = 0, last = 0;
+  while ((m = re.exec(text))) {
+    const gap = text.slice(last, m.index);
+    const lw = lower(m[0]);
+    if (BREAK_RE.test(gap) || CONJ.has(lw)) clause++;
+    words.push({ w: m[0], lw, start: m.index, end: m.index + m[0].length, clause });
+    if (CONJ.has(lw)) clause++;
+    last = m.index + m[0].length;
+  }
+
+  const hits = [];
+  words.forEach((t, i) => {
+    if (!CLITICS.has(t.lw)) return;
+    let pred = -1, lex = -1;
+    for (const d of [1, -1, 2, -2, 3, -3]) {
+      const j = i + d, u = words[j];
+      if (!u || u.clause !== t.clause || CLITICS.has(u.lw)) continue;
+      const k = lookup(u.lw);
+      if (k >= 0) { pred = j; lex = k; break; }
+    }
+    const negIdx = [i - 1, pred - 1].find((j) => j >= 0 && words[j] && words[j].clause === t.clause && words[j].lw === 'не');
+    const negated = negIdx !== undefined;
+    let pol = 'neu', label = t.lw;
+    if (lex >= 0) {
+      const [lbl, base] = LEXICON[lex];
+      const fixed = lbl.startsWith('не ');
+      label = negated && !fixed ? `не ${t.lw} ${words[pred].lw}` : lbl;
+      if (!negated || fixed) pol = base;
+      else pol = base === 'pos' ? 'neg' : 'neu';
+    }
+    const cl = words.filter((u) => u.clause === t.clause);
+    const snippet = text.slice(cl[0].start, cl[cl.length - 1].end).replace(/\s+/g, ' ');
+    hits.push({ i, pred, neg: negated ? negIdx : -1, lex, pol, label, snippet });
+  });
+  return { words, hits };
+}
+
+function renderReading(text, words, hits) {
+  if (!text.trim()) { $('reading').innerHTML = '<span class="empty">Тук ще се появи текстът с оцветените ме и ми.</span>'; return; }
+  const cls = new Map();
+  hits.forEach((h) => {
+    cls.set(h.i, 'mark:' + h.pol);
+    if (h.pred >= 0 && h.pol !== 'neu') cls.set(h.pred, 'pred:' + h.pol);
+    if (h.neg >= 0 && h.lex >= 0) cls.set(h.neg, 'negw');
+  });
+  let out = '', pos = 0;
+  words.forEach((t, i) => {
+    const c = cls.get(i);
+    if (!c) return;
+    out += esc(text.slice(pos, t.start));
+    const w = esc(t.w);
+    if (c.startsWith('mark:')) out += `<mark class="${c.slice(5)}">${w}</mark>`;
+    else if (c.startsWith('pred:')) out += `<span class="pred ${c.slice(5)}">${w}</span>`;
+    else out += `<span class="neg-word">${w}</span>`;
+    pos = t.end;
+  });
+  out += esc(text.slice(pos));
+  $('reading').innerHTML = out;
+}
+
+const fmt = (x) => x.toLocaleString('bg-BG', { maximumFractionDigits: 1 });
+
+function renderTally(hits) {
+  const c = { neg: 0, pos: 0, neu: 0 };
+  hits.forEach((h) => c[h.pol]++);
+  const tot = hits.length;
+  $('n-neg').textContent = c.neg; $('n-pos').textContent = c.pos;
+  $('n-neu').textContent = c.neu; $('n-tot').textContent = tot;
+  const spans = $('bar').children;
+  ['neg', 'pos', 'neu'].forEach((k, n) => { spans[n].style.width = tot ? (c[k] / tot * 100) + '%' : '0'; });
+  $('bar').setAttribute('aria-label', `Негативни ${c.neg}, позитивни ${c.pos}, неутрални ${c.neu}`);
+  let v;
+  if (!tot) v = 'Няма намерени ме или ми.';
+  else if (!c.neg && !c.pos) v = `Намерени са ${tot} ме/ми, но всички са неутрални.`;
+  else if (!c.pos) v = `<strong>Всички ${c.neg}</strong> емоционално оцветени ме/ми са негативни.`;
+  else if (c.neg > c.pos) v = `Негативните ме/ми са <strong>${fmt(c.neg / c.pos)} пъти</strong> повече от позитивните.`;
+  else if (c.neg === c.pos) v = 'Негативните и позитивните ме/ми са поравно.';
+  else v = `Позитивните ме/ми са ${fmt(c.pos / Math.max(c.neg, 1))} пъти повече. Рядък текст.`;
+  $('verdict').innerHTML = v;
+}
+
+const POL_NAME = { neg: 'негативно', pos: 'позитивно', neu: 'неутрално' };
+
+function renderFound(hits) {
+  if (!hits.length) { $('found').innerHTML = '<p class="none">Все още няма улов.</p>'; return; }
+  const groups = new Map();
+  hits.forEach((h) => {
+    const key = h.lex >= 0 ? h.label + '|' + h.pol : 'neu:' + h.label;
+    const name = h.lex >= 0 ? h.label : `${h.label} (без чувство)`;
+    if (!groups.has(key)) groups.set(key, { name, pol: h.pol, n: 0, ex: h.snippet });
+    groups.get(key).n++;
+  });
+  const order = { neg: 0, pos: 1, neu: 2 };
+  const rows = [...groups.values()].sort((a, b) => order[a.pol] - order[b.pol] || b.n - a.n);
+  $('found').innerHTML = `<table><thead><tr><th>Конструкция</th><th></th><th style="text-align:right">Брой</th><th>Пример</th></tr></thead><tbody>${
+    rows.map((r) => `<tr><td class="c">${esc(r.name)}</td><td><span class="chip ${r.pol}">${POL_NAME[r.pol]}</span></td><td class="k">${r.n}</td><td class="ex">${esc(r.ex)}</td></tr>`).join('')
+  }</tbody></table>`;
+}
+
+function renderDict(hits) {
+  const used = new Set(hits.filter((h) => h.lex >= 0).map((h) => h.lex));
+  const neg = [], pos = [];
+  LEXICON.forEach(([lbl, pol], k) => (pol === 'neg' ? neg : pos).push(`<span class="${used.has(k) ? 'hit' : ''}">${esc(lbl)}</span>`));
+  $('dict-neg').innerHTML = neg.join('');
+  $('dict-pos').innerHTML = pos.join('');
+  $('dict-sum').innerHTML = `Дори в речника: <span class="n neg">${neg.length}</span> негативни срещу <span class="n pos">${pos.length}</span> позитивни конструкции. Удебелените са намерени в текста.`;
+}
+
+function run() {
+  const text = $('src').value;
+  const { words, hits } = analyze(text);
+  renderReading(text, words, hits);
+  renderTally(hits);
+  renderFound(hits);
+  renderDict(hits);
+  try { localStorage.setItem('memi-text', text); } catch (e) {}
+}
+
+let saved = null;
+try { saved = localStorage.getItem('memi-text'); } catch (e) {}
+$('src').value = saved && saved.trim() ? saved : SAMPLE;
+$('src').addEventListener('input', run);
+$('btn-sample').addEventListener('click', () => { $('src').value = SAMPLE; run(); });
+$('btn-clear').addEventListener('click', () => { $('src').value = ''; run(); $('src').focus(); });
+run();
+</script>
