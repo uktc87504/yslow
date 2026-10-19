@@ -1,0 +1,162 @@
+<title>Ме и ми в корпуса</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single-column research note — finding first, then the bars, the evidence and the limits. */
+:root {
+  --bg: #eef1f5; --surface: #ffffff; --ink: #18202e; --muted: #5b6577; --line: #d5dbe5;
+  --accent: #2b45c4; --neg: #b8362a; --neg-soft: #f6dcd8; --pos: #23794a; --pos-soft: #d5ecdf;
+  --neu: #8a92a2; --neu-soft: #e3e7ee;
+  --f-display: "Unbounded", "Arial Black", system-ui, sans-serif;
+  --f-text: "PT Serif", Georgia, "Times New Roman", serif;
+  --f-ui: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11151d; --surface: #191f2a; --ink: #e6e9ef; --muted: #98a1b3; --line: #2c3442;
+    --accent: #8ea0ff; --neg: #f08374; --neg-soft: #4a2420; --pos: #6fcf98; --pos-soft: #1d3a2a;
+    --neu: #7d8698; --neu-soft: #2a313d; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11151d; --surface: #191f2a; --ink: #e6e9ef; --muted: #98a1b3; --line: #2c3442;
+  --accent: #8ea0ff; --neg: #f08374; --neg-soft: #4a2420; --pos: #6fcf98; --pos-soft: #1d3a2a;
+  --neu: #7d8698; --neu-soft: #2a313d; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font: 17px/1.6 var(--f-text);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 64px;
+}
+.wrap { max-width: 760px; margin: 0 auto; display: grid; gap: 36px; }
+header { display: grid; gap: 12px; }
+.eyebrow { font: 600 12px var(--f-ui); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0; }
+h1 { font: 700 clamp(28px, 5.5vw, 46px)/1.08 var(--f-display); margin: 0; text-wrap: balance; }
+h1 .me { color: var(--neg); } h1 .mi { color: var(--accent); }
+h2 { font: 600 20px/1.3 var(--f-ui); margin: 0; text-wrap: balance; }
+p { margin: 0; max-width: 65ch; }
+section { display: grid; gap: 14px; }
+.lede { font-size: 20px; }
+.lede strong { color: var(--neg); }
+.callout { font: 15px/1.5 var(--f-ui); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+.callout b { font-weight: 600; }
+.findings { display: grid; gap: 14px; padding: 0; margin: 0; list-style: none; }
+.findings li { display: grid; grid-template-columns: 74px 1fr; gap: 14px; align-items: baseline; }
+.findings .big { font: 500 28px var(--f-mono); font-variant-numeric: tabular-nums; text-align: right; }
+.findings .big.neg { color: var(--neg); } .findings .big.pos { color: var(--pos); } .findings .big.acc { color: var(--accent); }
+
+.chart { display: grid; gap: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px; font-family: var(--f-ui); }
+.row { display: grid; grid-template-columns: 170px 1fr; gap: 14px; align-items: center; }
+@media (max-width: 560px) { .row { grid-template-columns: 1fr; gap: 6px; } }
+.row .lab { font-size: 14px; line-height: 1.3; }
+.row .lab small { display: block; color: var(--muted); font-size: 12px; }
+.track { position: relative; display: flex; height: 26px; border-radius: 4px; overflow: hidden; background: var(--neu-soft); }
+.track span { display: flex; align-items: center; justify-content: center; font: 500 12px var(--f-mono); color: #fff; min-width: 0; }
+.track .n { background: var(--neg); } .track .p { background: var(--pos); }
+.track::after { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; border-left: 2px dashed var(--ink); opacity: .45; }
+.ci { font: 12px var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font: 14px/1.45 var(--f-ui); }
+th { text-align: left; font-weight: 500; font-size: 12px; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--line); }
+td { padding: 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+td.k { font-family: var(--f-mono); text-align: right; font-variant-numeric: tabular-nums; }
+td.ex { font-family: var(--f-text); font-style: italic; color: var(--muted); }
+td.c { font-family: var(--f-text); font-weight: 700; white-space: nowrap; }
+.chip { display: inline-block; font: 600 11px var(--f-ui); letter-spacing: .04em; text-transform: uppercase; padding: 2px 7px; border-radius: 999px; }
+.chip.neg { background: var(--neg-soft); color: var(--neg); } .chip.pos { background: var(--pos-soft); color: var(--pos); }
+ul.plain { margin: 0; padding-left: 1.2em; display: grid; gap: 8px; max-width: 65ch; }
+code { font: 14px var(--f-mono); background: var(--neu-soft); padding: 1px 5px; border-radius: 4px; }
+a { color: var(--accent); }
+footer { font: 13px/1.5 var(--f-ui); color: var(--muted); border-top: 1px solid var(--line); padding-top: 16px; }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Корпусно изследване · BulTreeBank (UD), 154 904 думи</p>
+    <h1>Песимистът е <span class="me">ме</span>, не <span class="mi">ми</span></h1>
+    <p class="lede">Безличните конструкции с винителна клитика (<i>мързи ме, дразни го, тревожи ни</i>) са негативни в <strong>71%</strong> от случаите. Тези с дателна (<i>харесва ми, мило ни е</i>) са негативни само в 41%.</p>
+  </header>
+
+  <div class="callout"><b>Кой корпус.</b> Българският национален корпус (dcl.bas.bg) е блокиран от мрежата на средата, в която работя. Затова използвах <b>BulTreeBank</b> в изданието му за Universal Dependencies. Той е създаден в ИИКТ-БАН, ръчно е анотиран с леми, падежи и синтаксис и съдържа 10 969 уникални изречения от новини, художествена проза, публицистика и правни текстове. Методът е същият, който може да се пусне върху БНК, но тук корпусът е около 7000 пъти по-малък.</div>
+
+  <section>
+    <h2>Какво излезе</h2>
+    <ul class="findings">
+      <li><span class="big neg">24:16</span><p><b>Речникът е негативен.</b> Срещнатите в корпуса различни леми с експериенцер-клитика са 24 негативни срещу 16 позитивни. Това е 60% и съвпада със световната закономерност: в повечето езици думите за неприятни състояния са повече.</p></li>
+      <li><span class="big">54%</span><p><b>В реалната употреба разликата почти изчезва.</b> От 68 емоционално оцветени употреби (всички лица) 37 са негативни и 31 позитивни. Доверителният интервал (43–66%) включва 50%, тоест превесът не е статистически сигурен. Само <i>харесва ми / хареса ми</i> дава 11 позитивни употреби.</p></li>
+      <li><span class="big acc">71%</span><p><b>Разликата е между падежите.</b> Винителните (ме, те, го, ни…) са негативни в 22 от 31 случая. Дателните (ми, ти, му, ни…) са негативни в 15 от 37. Разликата е статистически значима (Fisher, p ≈ 0,015).</p></li>
+      <li><span class="big">43%</span><p><b>Само за ме и ми</b> употребите са 31, от тях 9 негативни, 12 позитивни и 10 неутрални. Извадката е твърде малка за самостоятелен извод.</p></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Дял на негативните сред емоционално оцветените</h2>
+    <div class="chart" role="img" aria-label="Дял негативни: всички лица 54%, винителни 71%, дателни 41%, само ме и ми 43%">
+      <div class="row"><div class="lab">Всички лица<small>N = 68 (+37 неутрални)</small></div><div><div class="track"><span class="n" style="width:54.4%">37</span><span class="p" style="width:45.6%">31</span></div><div class="ci">54% негативни · 95% ДИ 43–66%</div></div></div>
+      <div class="row"><div class="lab">Винителни: ме, те, го…<small>N = 31 (+5 неутрални)</small></div><div><div class="track"><span class="n" style="width:71%">22</span><span class="p" style="width:29%">9</span></div><div class="ci">71% негативни · 95% ДИ 53–84%</div></div></div>
+      <div class="row"><div class="lab">Дателни: ми, ти, му…<small>N = 37 (+32 неутрални)</small></div><div><div class="track"><span class="n" style="width:40.5%">15</span><span class="p" style="width:59.5%">22</span></div><div class="ci">41% негативни · 95% ДИ 26–57%</div></div></div>
+      <div class="row"><div class="lab">Само ме и ми<small>N = 21 (+10 неутрални)</small></div><div><div class="track"><span class="n" style="width:42.9%">9</span><span class="p" style="width:57.1%">12</span></div><div class="ci">43% негативни · 95% ДИ 24–63%</div></div></div>
+      <div class="legend"><span><i style="background:var(--neg)"></i>негативни</span><span><i style="background:var(--pos)"></i>позитивни</span><span>пунктирът е 50%</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Как да си го обясним</h2>
+    <p>Винителната клитика обикновено стои при глаголи, в които нещо <i>действа върху</i> човека: <i>дразни го, тревожи го, унижава ни, мързи ме, втресло го</i>. Външна сила, която те овладява, рядко е приятна. Дателната отбелязва човека като <i>получател</i> на състояние или оценка: <i>харесва ми, мило ни е, интересно ми е, удобно ти е</i>. Там има място и за хубавото.</p>
+    <p>Така че усещането за „много негативни меми“ вероятно идва от винителните конструкции и от богатия речник за неприятното. Не идва от това, че българите по-често говорят за лошото.</p>
+  </section>
+
+  <section>
+    <h2>Най-честите конструкции</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Конструкция</th><th></th><th>Падеж</th><th style="text-align:right">Брой</th><th>Пример от корпуса</th></tr></thead>
+        <tbody>
+          <tr><td class="c">харесва ми</td><td><span class="chip pos">поз.</span></td><td>дат.</td><td class="k">11</td><td class="ex">Мене повече ми харесва да живея на село, защото има хубави момичета.</td></tr>
+          <tr><td class="c">мило ни е</td><td><span class="chip pos">поз.</span></td><td>дат.</td><td class="k">4</td><td class="ex">Европа ни е мила, но българите са ни по-мили.</td></tr>
+          <tr><td class="c">смущава го</td><td><span class="chip neg">нег.</span></td><td>вин.</td><td class="k">3</td><td class="ex">Това почна да го смущава.</td></tr>
+          <tr><td class="c">разтревожи го</td><td><span class="chip neg">нег.</span></td><td>вин.</td><td class="k">3</td><td class="ex">Известието, че тя заминава, го разтревожи.</td></tr>
+          <tr><td class="c">мързи ме</td><td><span class="chip neg">нег.</span></td><td>вин.</td><td class="k">2</td><td class="ex">Когото го мързи, да не става.</td></tr>
+          <tr><td class="c">писна ми</td><td><span class="chip neg">нег.</span></td><td>дат.</td><td class="k">2</td><td class="ex">Писнало му било от България.</td></tr>
+          <tr><td class="c">ядосва ме</td><td><span class="chip neg">нег.</span></td><td>вин.</td><td class="k">2</td><td class="ex">Кого че съм видял те ядосва?</td></tr>
+          <tr><td class="c">унижава ни</td><td><span class="chip neg">нег.</span></td><td>вин.</td><td class="k">2</td><td class="ex">„Европа ни унижава“ се четеше на плакатите.</td></tr>
+          <tr><td class="c">успокоява ме</td><td><span class="chip pos">поз.</span></td><td>вин.</td><td class="k">2</td><td class="ex">Тая музика те успокоява.</td></tr>
+          <tr><td class="c">интересно ми е</td><td><span class="chip pos">поз.</span></td><td>дат.</td><td class="k">2</td><td class="ex">Ще ми е интересно да видя какво е навън.</td></tr>
+          <tr><td class="c">домиля ми</td><td><span class="chip neg">нег.</span></td><td>дат.</td><td class="k">1</td><td class="ex">Затъжих се, домиля ми за родното място.</td></tr>
+          <tr><td class="c">яд ме е</td><td><span class="chip neg">нег.</span></td><td>вин.</td><td class="k">1</td><td class="ex">Яд ме е на целия свят.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Метод</h2>
+    <ul class="plain">
+      <li>Взех всички кратки лични местоимения във винителен или дателен падеж: <i>ме, те, го, я, ни, ви, ги, ми, ти, му, ѝ, им</i>. Изключих притежателното <i>ми</i> (<i>майка ми</i>), <i>се</i> и <i>си</i>. Получиха се 1345 клитики, от които 194 са <i>ме/ми</i>. Повторените изречения броих веднъж.</li>
+      <li>За всяка клитика взех глагола или предикатива, от който тя зависи според синтактичната анотация.</li>
+      <li>Ръчно отделих 105 случая, в които клитиката е <b>експериенцер</b>, тоест човекът, който изпитва нещо. Такива са <i>мързи ме</i> и <i>харесва ми</i>, но не и <i>обичам го</i> или <i>кажи ми</i>. Ръчно ги класифицирах като негативни, позитивни или неутрални (<i>струва ми се, трябва ми, случи ми се</i>).</li>
+      <li>Отрицанието обръща полярността: <i>не ми изнася</i> е негативно, <i>не ме безпокоят</i> е неутрално.</li>
+      <li>Интервалите са на Уилсън (95%). Сравнението между падежите е с точния тест на Фишър.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Ограничения</h2>
+    <ul class="plain">
+      <li><b>Малък корпус.</b> 105 конструкции дават широки интервали. Най-вече изводът за самите <i>ме/ми</i> трябва да се провери в БНК.</li>
+      <li><b>Жанр.</b> BulTreeBank е предимно новини, публицистика и правни текстове, където първо лице се среща рядко. В разговорна реч картината може да е друга.</li>
+      <li><b>Един анотатор.</b> Класификацията е моя. Някои случаи са спорни, например дали <i>липсва ми</i> е негативно, затова решенията са записани изречение по изречение в <code>rezultati.json</code>.</li>
+      <li><b>Без сравнение с други езици.</b> Дали българският е по-негативен от руския или сръбския, остава отворен въпрос. Отговорът изисква същия анализ върху техните UD корпуси.</li>
+    </ul>
+  </section>
+
+  <footer>Данни: UD_Bulgarian-BTB (BulTreeBank, ИИКТ-БАН), лиценз CC BY-NC-SA. Скриптове и пълни резултати: <code>lovec-na-memi/korpus/</code> в клона ccr-4a4272df-pbqqk4 на uktc87504/yslow.</footer>
+</div>
